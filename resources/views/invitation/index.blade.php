@@ -271,9 +271,24 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <a href="#" class="btn btn-success btn-sm rounded-pill px-3">
-                                                <i class="bi bi-whatsapp me-1"></i> Envoyer
-                                            </a>
+                                            @php
+    // Votre logique existante est correcte
+    $groom = explode(' ', $wedding->groom_name)[0];
+    $bride = explode(' ', $wedding->bride_name)[0];
+    
+    // On construit le message avec ces variables
+    $message = "✨ 𝐢𝐧𝐯𝐢𝐭𝐚𝐭𝐢𝐨𝐧 ✨" . PHP_EOL . PHP_EOL . 
+               "*" . strtoupper($invitation->guest_name) . "*," . PHP_EOL . PHP_EOL . 
+               $groom . " & " . $bride . " sont très heureux de vous inviter à leur mariage." . PHP_EOL . PHP_EOL . 
+               "Nous avons hâte de célébrer ce moment avec vous ! Cliquez sur le lien ci-dessous pour découvrir le programme détaillé et confirmer votre présence.👇🏼" . PHP_EOL . PHP_EOL . 
+               route('guest.welcome', $invitation->link_token);
+@endphp
+
+<a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $invitation->phone) }}?text={{ urlencode($message) }}" 
+   target="_blank" 
+   class="btn btn-success btn-sm rounded-pill px-3">
+    <i class="bi bi-whatsapp me-1"></i> Envoyer
+</a>
                                         </td>
                                         <td class="pe-4 text-end">
                                             <div class="d-flex justify-content-end align-items-center gap-2 action-buttons">
