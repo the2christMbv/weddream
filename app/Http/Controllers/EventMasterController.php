@@ -25,12 +25,11 @@ class EventMasterController extends Controller
                             ->orderBy('guest_name', 'asc')
                             ->get();
 
-        // 🔥 CORRECTION : On récupère les tables liées à ce mariage pour le plan de salle
+        // Récupère les tables liées à ce mariage pour le plan de salle
         $tables = WeddingTable::where('wedding_id', $wedding->id)
                                 ->with(['invitations']) 
                                 ->get();
 
-        // 🔥 MODIFICATION : On ajoute 'tables' dans le compact
         return view('server.dashboard', compact('wedding', 'guests', 'tables'));
     }
 
@@ -39,35 +38,28 @@ class EventMasterController extends Controller
      */
     public function checkInQr($token)
     {
-        // 1. Trouver l'invité grâce à l'ID lu par le scanner
         $guest = Invitation::with('weddingTable')->find($token);
 
-        // Sécurité 1 : Si l'ID n'existe pas
         if (!$guest) {
             return redirect()->back()->with('error', "🚨 TICKET INVALIDE : Ce code ne correspond à aucune invitation.");
         }
 
-        // Sécurité 2 : Bloquer si le ticket a DÉJÀ été scanné
         if ($guest->is_checked_in == 1) {
-            $time = $guest->checked_in_at ? \Illuminate\Support\Carbon::parse($guest->checked_in_at)->format('H:i') : 'Inconnue';
+            $time = $guest->checked_in_at ? Carbon::parse($guest->checked_in_at)->format('H:i') : 'Inconnue';
             return redirect()->back()->with('error', "⚠️ ALERTE DOUBLON : L'accès pour [{$guest->guest_name}] a DÉJÀ été validé à {$time}.");
         }
 
-        // 2. SAUVEGARDE FORCEE EN BASE DE DONNEES
         $guest->is_checked_in = 1;
-        $guest->checked_in_at = \Illuminate\Support\Carbon::now();
-        $guest->save(); // On utilise save() pour être sûr que Laravel pousse immédiatement en DB
+        $guest->checked_in_at = Carbon::now();
+        $guest->save();
 
-        // 3. DETECTION DU PROFILE CONNECTE POUR LA REDIRECTION
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
         $message = "✅ SCAN REUSSI • [{$guest->guest_name}] approuvé(e) • Table : " . ($guest->weddingTable ? $guest->weddingTable->name : 'Non placée');
 
-        // Si c'est le superviseur qui scanne sur son moniteur
         if ($user && $user->role === 'supervisor') {
             return redirect()->route('supervisor.dashboard', ['id' => $guest->wedding_id])->with('success', $message);
         }
 
-        // Par défaut (si c'est le serveur ou le staff d'accueil)
         return redirect()->route('server.dashboard', ['id' => $guest->wedding_id])->with('success', $message);
     }
 
@@ -86,12 +78,10 @@ class EventMasterController extends Controller
                                 ->with(['invitations']) 
                                 ->get();
 
-        // AJOUT : On récupère l'équipe complète liée à ce mariage
         $staff = User::where('wedding_id', $wedding->id)
                      ->whereIn('role', ['server', 'staff', 'maitre'])
                      ->get();
 
-        // MODIFICATION : On ajoute 'staff' dans le compact pour l'envoyer à la vue
         return view('supervisor.dashboard', compact('guests', 'tables', 'wedding', 'staff'));
     }
 
@@ -130,53 +120,108 @@ class EventMasterController extends Controller
 
     /**
      * Validation du Scan QR ou Pointage manuel d'arrivée.
+     * RESOLU : Retourne du JSON propre que ce soit en AJAX classique ou avec Fetch API (wantsJson)
      */
     public function checkIn($id)
-    {
-        $guest = Invitation::findOrFail($id);
+{
+    try {
+        $guest = Invitation::with('weddingTable')->findOrFail($id);
         
+        // 1. Gestion du doublon
+        if ($guest->is_checked_in) {
+            return response()->json([
+                'success' => false,
+                'message' => "⚠️ Déjà validé : {$guest->guest_name} est arrivé à " . Carbon::parse($guest->checked_in_at)->format('H:i')
+            ], 400);
+        }
+
+        // 2. Mise à jour
         $guest->update([
             'is_checked_in' => true,
             'checked_in_at' => Carbon::now()
         ]);
 
-        if (request()->ajax()) {
-            return response()->json([
-                'success' => true,
-                'guest_name' => $guest->guest_name,
-                'table_name' => $guest->weddingTable ? $guest->weddingTable->name : 'Non assignée'
-            ]);
-        }
-
-        return redirect()->back()->with('success', "Accès validé pour {$guest->guest_name}. Bienvenue !");
-    }
-
-    /**
-     * Assignation d'une table à un invité (Sécurisée contre les erreurs 422/500).
-     */
-    public function assignSeat(Request $request, $id)
-    {
-        // 1. Récupérer l'invitation
-        $guest = Invitation::findOrFail($id);
-        
-        // 2. Récupérer la valeur brute envoyée par l'AJAX
-        $tableId = $request->input('wedding_table_id');
-
-        // 3. Forcer la mise à jour
-        $guest->wedding_table_id = $tableId ?: null;
-        $guest->save();
-
-        // 4. ÉTAPE DE DIAGNOSTIC : On recharge l'invité depuis la base de données
-        $guest->refresh();
-
-        // On renvoie un rapport complet au JavaScript pour voir ce qui est stocké
+        // 3. Réponse JSON unifiée (tous les cas de succès retournent un 'message')
         return response()->json([
             'success' => true,
-            'id_reçu' => $id,
-            'table_id_reçu' => $tableId,
-            'valeur_sauvegardée_en_db' => $guest->wedding_table_id,
-            'est_ce_que_la_table_existe_via_relation' => $guest->weddingTable ? 'Oui : ' . $guest->weddingTable->name : 'Non, la relation renvoie null'
+            'message' => "✅ Bienvenue {$guest->guest_name} ! • Table : " . ($guest->weddingTable->name ?? 'Non assignée'),
+            'guest_name' => $guest->guest_name,
+            'table_name' => $guest->weddingTable->name ?? 'Non assignée'
         ]);
+
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => "🚨 Ticket introuvable."
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => "Erreur serveur interne."
+        ], 500);
+    }
+}
+
+    /**
+     * Affectation d'une table
+     */
+    public function assignTable(Request $request)
+    {
+        try {
+            $request->validate([
+                'guest_id' => 'required|exists:invitations,id',
+                'table_id' => 'nullable'
+            ]);
+
+            $invitation = Invitation::findOrFail($request->guest_id);
+            $tableId = $request->table_id;
+
+            // Vérification de la capacité de la table si une table est sélectionnée
+            if ($tableId) {
+                $table = WeddingTable::findOrFail($tableId);
+                $currentOccupancy = Invitation::where('wedding_table_id', $table->id)
+                                              ->where('id', '!=', $invitation->id)
+                                              ->sum('access_count');
+                
+                if (($currentOccupancy + $invitation->access_count) > $table->capacity) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "La table {$table->name} n'a pas assez de places disponibles pour ce groupe ({$invitation->access_count} pers.)."
+                    ], 422);
+                }
+            }
+
+            $invitation->wedding_table_id = $tableId ?: null;
+            $invitation->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Table assignée avec succès !'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'assignation : ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function serveDrinkOnSite(Request $request, $id)
+    {
+        // 1. Validation de sécurité
+        $request->validate([
+            'drink_names' => 'required|array',
+            'drink_names.*' => 'required|string'
+        ]);
+
+        $guest = Invitation::findOrFail($id); 
+
+        // 2. Transformation selon ta structure de base de données
+        $guest->preorder_drink = implode(', ', $request->drink_names);
+        $guest->save();
+
+        return redirect()->back()->with('success', 'Sélection des boissons enregistrée avec succès !');
     }
 
     /**
@@ -186,33 +231,29 @@ class EventMasterController extends Controller
     {
         $table = WeddingTable::findOrFail($id);
 
-        Invitation::where('wedding_table_id', $id)->update([
+        $invitations = Invitation::where('wedding_table_id', $id)->update([
             'wedding_table_id' => null,
             'seat_number' => null
         ]);
 
         $table->delete();
 
-        return redirect()->back()->with('success', 'Table retirée. Les invités concernés sont de nouveau en attente de placement.');
+        return redirect()->back()->with('success', 'Table retirée. Les invités en attente de placement.');
     }
 
     /**
-     * 🔥 AJOUT : Confirme qu'un invité s'est assis à sa table (via AJAX).
+     * Confirme qu'un invité s'est assis à sa table (via AJAX).
      */
     public function setSeated($id)
     {
         try {
             $guest = Invitation::findOrFail($id);
-            
-            $guest->update([
-                'is_seated' => true
-            ]);
+            $guest->update(['is_seated' => true]);
 
             return response()->json([
                 'success' => true,
                 'message' => "L'installation à la table a été validée avec succès."
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -222,22 +263,18 @@ class EventMasterController extends Controller
     }
 
     /**
-     * 🔥 AJOUT : Confirme que la boisson de l'invité a été servie (via AJAX).
+     * Confirme que la boisson de l'invité a été servie (via AJAX).
      */
     public function setServed($id)
     {
         try {
             $guest = Invitation::findOrFail($id);
-            
-            $guest->update([
-                'is_served' => true
-            ]);
+            $guest->update(['is_served' => true]);
 
             return response()->json([
                 'success' => true,
                 'message' => "Le service de la boisson a été validé avec succès."
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

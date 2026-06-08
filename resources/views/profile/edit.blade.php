@@ -22,13 +22,27 @@
             overflow-x: hidden;
         }
 
-        /* Sidebar plus fine et moderne */
+        /* Sidebar responsive */
         .sidebar { 
             background: var(--wed-dark);
-            min-height: 100vh; 
-            position: fixed; 
             z-index: 100;
             box-shadow: 4px 0 24px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        @media (min-width: 992px) {
+            .sidebar {
+                position: fixed; 
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 16.666667%;
+                min-height: 100vh;
+            }
+            .main-content { 
+                margin-left: 16.666667%; 
+                width: 83.333333%;
+            }
         }
 
         .nav-link {
@@ -38,12 +52,20 @@
             transition: 0.3s;
         }
 
+        .nav-link:hover {
+            color: #white !important;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
         .nav-link.active {
             background: rgba(197, 160, 89, 0.15);
             color: var(--wed-gold) !important;
         }
 
-        .main-content { margin-left: 16.666667%; background: url('https://www.transparenttextures.com/patterns/white-diamond.png'); } 
+        .main-content { 
+            background: url('https://www.transparenttextures.com/patterns/white-diamond.png'); 
+            min-height: 100vh;
+        } 
 
         /* Carte Style Luxe */
         .card-profile { 
@@ -52,12 +74,11 @@
             border-radius: 24px; 
             border: 1px solid rgba(255,255,255,1);
             box-shadow: 0 20px 40px rgba(0,0,0,0.04);
-            padding: 40px;
         }
 
         .title-wedding {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.5rem;
+            font-size: calc(1.8rem + 1vw);
             color: var(--wed-dark);
             letter-spacing: -1px;
         }
@@ -76,6 +97,7 @@
             background: #af8d4a; 
             transform: scale(1.02);
             box-shadow: 0 10px 20px rgba(197, 160, 89, 0.2);
+            color: white;
         }
 
         .form-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 8px; }
@@ -107,24 +129,36 @@
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-2 sidebar p-4">
-                <div class="text-center mb-5">
+    <div class="container-fluid p-0">
+        <!-- Barre supérieure pour Mobile & Tablette -->
+        <header class="navbar navbar-dark sticky-top bg-dark d-lg-none p-3 shadow">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <img src="{{ asset('logo-removebg-preview.png') }}" height="35" style="filter: brightness(0) invert(1);" alt="Logo">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </header>
+
+        <div class="row g-0">
+            <!-- Sidebar (Ordinateur fixe / Mobile rétractable) -->
+            <div class="col-lg-2 sidebar collapse d-lg-block p-4" id="sidebarMenu">
+                <div class="text-center mb-5 d-none d-lg-block">
                     <img src="{{ asset('logo-removebg-preview.png') }}" class="img-fluid" style="filter: brightness(0) invert(1);" alt="Logo">
                 </div>
-                <nav class="nav flex-column">
+                <nav class="nav flex-column h-100">
                     <a class="nav-link" href="{{ route('admin.dashboard') }}">
                         <i class="bi bi-grid-fill me-3"></i> Dashboard
                     </a>
                     <a class="nav-link active" href="{{ route('profile.edit') }}">
                         <i class="bi bi-shield-lock-fill me-3"></i> Sécurité
                     </a>
-                    <div class="mt-auto pt-5">
+                    <div class="mt-4 mt-lg-auto pt-3 pb-4">
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
-                            <button class="btn btn-link text-white-50 text-decoration-none small p-0">
+                            <button class="btn btn-link text-white-50 text-decoration-none small p-0 w-100 text-start">
                                 <i class="bi bi-box-arrow-left me-2"></i> Quitter la session
                             </button>
                         </form>
@@ -132,16 +166,17 @@
                 </nav>
             </div>
 
-            <!-- Contenu -->
-            <div class="col-md-10 main-content p-5">
-                <div class="row justify-content-center mt-4">
-                    <div class="col-lg-6">
-                        <div class="text-center mb-5">
+            <!-- Contenu Principal -->
+            <div class="main-content p-3 p-md-5">
+                <div class="row justify-content-center mt-lg-4">
+                    <div class="col-100 col-md-10 col-lg-8 col-xl-6">
+                        
+                        <div class="text-center mb-4 mb-md-5">
                             <h1 class="title-wedding mb-2">Votre Sanctuaire</h1>
-                            <p class="text-muted">Gérez vos accès et sécurisez votre espace WedDream</p>
+                            <p class="text-muted small">Gérez vos accès et sécurisez votre espace WedDream</p>
                         </div>
 
-                        <div class="card-profile">
+                        <div class="card-profile p-4 p-md-5">
                             @if(session('success'))
                                 <div class="alert alert-success border-0 rounded-4 py-3 mb-4 text-center">
                                     <i class="bi bi-check2-circle me-2"></i> {{ session('success') }}
@@ -185,7 +220,7 @@
                                     </div>
                                 </div>
 
-                                <button type="submit" class="btn btn-gold w-100 mt-3 shadow-sm">
+                                <button type="submit" class="btn btn-gold w-100 mt-2 shadow-sm">
                                     Mettre à jour la sécurité
                                 </button>
                                 
@@ -196,12 +231,15 @@
                                 </div>
                             </form>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Script requis par Bootstrap pour le bouton Menu Burger (Mobile) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleVisibility(id, btn) {
             const input = document.getElementById(id);

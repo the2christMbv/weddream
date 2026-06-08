@@ -233,18 +233,71 @@
                 padding: 12px;
             }
         }
+        .hero-section {
+    position: relative; /* Indispensable pour le positionnement absolu du bouton */
+}
+
+.logout-wrapper {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    z-index: 100; /* Permet de passer au-dessus de l'overlay */
+}
+
+.btn-logout-luxe {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #f1d394;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 8px 18px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.btn-logout-luxe:hover {
+    background: linear-gradient(135deg, #c5a059 0%, #f1d394 50%, #c5a059 100%);
+    color: #0a192f;
+    border-color: transparent;
+    box-shadow: 0 5px 15px rgba(197, 160, 89, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Version Mobile */
+@media screen and (max-width: 767px) {
+    .logout-wrapper {
+        top: 15px;
+        right: 15px;
+    }
+    .btn-logout-luxe {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+}
     </style>
 </head>
 <body>
 
     <div class="hero-section no-print">
-        <div class="hero-image" id="parallax"></div>
-        <div class="hero-overlay"></div>
-        <div class="hero-title">
-            <h1 class="animate__animated animate__fadeInDown">WedDream</h1>
-            <p class="lead fw-light text-white-50">Direction des Opérations | {{ $wedding->title ?? 'Prestige Event' }}</p>
-        </div>
+    <!-- Emplacement et bouton Déconnexion Prestige -->
+    <div class="logout-wrapper">
+        <form action="{{ route('logout') }}" method="POST" id="logout-form">
+            @csrf
+            <button type="submit" class="btn btn-logout-luxe shadow-sm">
+                <i class="bi bi-box-arrow-right me-1"></i> Déconnexion
+            </button>
+        </form>
     </div>
+
+    <div class="hero-image" id="parallax"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-title">
+        <h1 class="animate__animated animate__fadeInDown">WedDream</h1>
+        <p class="lead fw-light text-white-50">Direction des Opérations | {{ $wedding->title ?? 'Prestige Event' }}</p>
+    </div>
+</div>
 
     <main class="container main-content mb-5">
         
@@ -322,25 +375,42 @@
                         <i class="bi bi-wine-glass-fill text-warning me-2"></i>Carte des Boissons Actuelles
                     </h5>
                     <div class="list-group list-group-flush">
-                        @forelse($wedding->drinks ?? [] as $drink)
-                            <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-bottom">
-                                <div>
-                                    <span class="fw-bold text-dark d-block" style="font-size: 0.95rem;">{{ $drink->name }}</span>
-                                    <span class="drink-badge mt-1 d-inline-block">{{ $drink->category }}</span>
-                                </div>
-                                <span class="badge bg-light text-secondary border rounded-pill px-3 py-2 small fw-normal">
-                                    Choisie {{ $guests->filter(function($guest) {
-                                        return is_array($guest->preorder_drink);
-                                    })->pluck('preorder_drink')->flatten()->whereStrict(null, $drink->name)->count() }} fois
-                                </span>
-                            </div>
-                        @empty
-                            <div class="text-center py-4 text-muted small fw-light">
-                                <i class="bi bi-info-circle d-block mb-2 fs-4 text-warning"></i>
-                                Aucune boisson enregistrée pour le moment.
-                            </div>
-                        @endforelse
-                    </div>
+    @forelse($wedding->drinks ?? [] as $drink)
+        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-bottom">
+            <div>
+                <span class="fw-bold text-dark d-block" style="font-size: 0.95rem;">{{ $drink->name }}</span>
+                <span class="drink-badge mt-1 d-inline-block">{{ $drink->category }}</span>
+            </div>
+            
+            <span class="badge bg-light text-secondary border rounded-pill px-3 py-2 small fw-normal">
+                Choisie 
+                {{ $guests->sum(function($guest) use ($drink) {
+                    if (empty($guest->preorder_drink)) {
+                        return 0;
+                    }
+                    
+                    // Cas 1 : Enregistré sur place par le serveur (Chaîne de caractères)
+                    if (is_string($guest->preorder_drink)) {
+                        $drinksArray = array_map('trim', explode(',', $guest->preorder_drink));
+                        return count(array_keys($drinksArray, $drink->name));
+                    }
+                    
+                    // Cas 2 : Choisi via le formulaire RSVP (Tableau / JSON)
+                    if (is_array($guest->preorder_drink)) {
+                        return count(array_keys($guest->preorder_drink, $drink->name));
+                    }
+
+                    return 0;
+                }) }} fois
+            </span>
+        </div>
+    @empty
+        <div class="text-center py-4 text-muted small fw-light">
+            <i class="bi bi-info-circle d-block mb-2 fs-4 text-warning"></i>
+            Aucune boisson enregistrée pour le moment.
+        </div>
+    @endforelse
+</div>
                 </div>
             </div>
         </div>
@@ -468,57 +538,67 @@
         </div>
 
         <div class="glass-card">
-            <div class="row g-3 mb-4 no-print align-items-center">
-                <div class="col-md-4">
-                    <button class="btn btn-dark w-100 py-3 rounded-4 shadow-sm" id="scannerToggle" onclick="toggleScanner()">
-                        <i class="bi bi-qr-code-scan me-2"></i> Scanner QR
-                    </button>
-                </div>
-                <div class="col-md-5">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0 rounded-start-4 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" id="searchInput" class="form-control py-3 border-start-0 rounded-end-4 shadow-sm" placeholder="Rechercher un invité, une table, une boisson...">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-outline-dark w-100 py-3 rounded-4" data-bs-toggle="modal" data-bs-target="#modalAddTable">
-                        <i class="bi bi-plus-lg me-1"></i>  Nouvelle Table
-                    </button>
-                </div>
-            </div>
+    <div class="row g-3 mb-4 no-print align-items-center">
+        <!-- SCANNER QR -->
+  <div class="row g-3 align-items-center">
+        <div class="col-md-4">
+        <div class="input-group">
+            <span class="input-group-text bg-white border-end-0 rounded-start-4 text-muted"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchInput" class="form-control py-3 border-start-0 rounded-end-4 shadow-sm" placeholder="Rechercher...">
+        </div>
+    </div>
 
+    <div class="col-md-4">
+        <a href="{{ route('supervisor.borne.qr', ['id' => $wedding->id]) }}" target="_blank" class="btn btn-primary w-100 py-3 rounded-4 shadow-sm text-white fw-bold">
+            <i class="bi bi-qr-code me-1"></i> QR Code Borne
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <button class="btn btn-outline-dark w-100 py-3 rounded-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalAddTable">
+            <i class="bi bi-plus-lg me-1"></i> Table
+        </button>
+    </div>
+    </div>
             <div id="reader" class="no-print shadow-lg bg-light"></div>
 
             <h5 class="fw-bold mb-4 text-uppercase tracking-wider no-print"><i class="bi bi-grid-3x3-gap-fill text-warning me-2"></i>Plan de Salle</h5>
             
             <div class="row g-3 mb-5 no-print">
-                @foreach($tables as $table)
-                    @php
-                        $allocatedSeats = $table->invitations->sum('access_count');
-                        $isFull = $allocatedSeats >= $table->capacity;
-                    @endphp
-                    <div class="col-xl-3 col-md-4">
-                        <div class="card border-0 shadow-sm rounded-4 p-3 h-100 {{ $isFull ? 'border-start border-danger border-4' : '' }}">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <span class="fw-bold d-block">{{ $table->name }}</span>
-                                    <small class="text-muted">{{ $allocatedSeats }}/{{ $table->capacity }} places</small>
-                                </div>
-                                <form action="{{ route('supervisor.tables.remove', $table->id) }}" method="POST">
-                                    @csrf 
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm text-danger" onclick="return confirm('Retirer cette table ?')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="progress mt-2" style="height: 5px;">
-                                <div class="progress-bar {{ $isFull ? 'bg-danger' : 'bg-warning' }}" style="width: {{ $table->capacity > 0 ? ($allocatedSeats / $table->capacity) * 100 : 0 }}%"></div>
-                            </div>
-                        </div>
+    @foreach($tables as $table)
+        @php
+            $allocatedSeats = $table->invitations->sum('access_count');
+            $isFull = $allocatedSeats >= $table->capacity;
+        @endphp
+        <div class="col-xl-3 col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 h-100 {{ $isFull ? 'border-start border-danger border-4' : '' }}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="fw-bold d-block">{{ $table->name }}</span>
+                        <small class="text-muted">{{ $allocatedSeats }}/{{ $table->capacity }} places</small>
                     </div>
-                @endforeach
+                    
+                    <!-- Actions de la table (Imprimer & Supprimer) -->
+                    <div class="d-flex align-items-center gap-1">
+                        <!-- BOUTON IMPRESSION DE CETTE TABLE SPECIFIQUE -->
+                        <a href="{{ route('client.staff.table.print', ['id' => $table->id]) }}" target="_blank" class="btn btn-sm text-warning" title="Imprimer le ticket A4">
+                            <i class="bi bi-printer-fill" style="font-size: 1.1rem;"></i>
+                        </a>
+
+                        <!-- FORMULAIRE DE SUPPRESSION -->
+                        <form action="{{ route('supervisor.tables.remove', $table->id) }}" method="POST" class="m-0">
+                            @csrf 
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm text-danger" onclick="return confirm('Retirer cette table ?')" title="Supprimer la table">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
+        </div>
+    @endforeach
+</div>
 
             <h5 class="fw-bold mb-3 text-uppercase tracking-wider"><i class="bi bi-people-fill text-warning me-2"></i>Registre des Invités</h5>
             <div class="table-responsive border rounded-4 bg-white shadow-sm">
@@ -682,7 +762,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script>
     // Recherche synchrone dans la table
     document.getElementById('searchInput').addEventListener('keyup', function() {
@@ -727,7 +807,7 @@
         }
     }
 
-    // Contrôle du scanner de code QR
+    // Contrôle du scanner de code QR (Mis à jour et stabilisé)
     let html5QrCode;
     async function toggleScanner() {
         const readerDiv = document.getElementById('reader');
@@ -735,17 +815,39 @@
 
         if (readerDiv.style.display === 'none' || readerDiv.style.display === '') {
             readerDiv.style.display = 'block';
+            
+            if (html5QrCode) {
+                try { await html5QrCode.clear(); } catch(e) {}
+            }
+
             html5QrCode = new Html5Qrcode("reader");
             try {
                 await html5QrCode.start(
                     { facingMode: "environment" }, 
                     { fps: 10, qrbox: 250 }, 
                     async (decodedText) => {
-                        await html5QrCode.stop();
+                        console.log("🎯 QR Code détecté :", decodedText);
+
+                        // Arrêt sécurisé du flux vidéo pour ne pas briser la chaîne de promesses
+                        try {
+                            await html5QrCode.stop();
+                        } catch (stopError) {
+                            console.warn("Notification arrêt flux caméra :", stopError);
+                        }
+                        
                         readerDiv.style.display = 'none';
 
+                        // Extraction de l'ID si le QR code contient l'URL complète
+                        let cleanText = decodedText;
+                        if (decodedText.includes('/') || decodedText.includes('://')) {
+                            const segments = decodedText.split('/');
+                            cleanText = segments.pop() || segments.pop();
+                        }
+
                         try {
-                            const response = await fetch(`/supervisor/check-in/${decodedText}`, {
+                            console.log(`📡 Communication initiée pour l'ID : ${cleanText}`);
+                            
+                            const response = await fetch(`/supervisor/check-in/${cleanText}`, {
                                 method: 'POST',
                                 headers: {
                                     'X-CSRF-TOKEN': token,
@@ -753,15 +855,29 @@
                                     'Content-Type': 'application/json'
                                 }
                             });
+
                             const data = await response.json();
+                            console.log("📦 Données retournées par le serveur :", data);
+
                             if (response.ok) {
-                                window.location.reload();
+                                // Transition visuelle verte sur la ligne correspondante de l'interface
+                                const targetRow = document.getElementById(`guest-row-${cleanText}`);
+                                if (targetRow) {
+                                    targetRow.style.transition = "background-color 0.5s ease";
+                                    targetRow.style.backgroundColor = "#d4edda";
+                                }
+                                
+                                console.log(`✓ Présence validée pour : ${data.guest_name}`);
+                                
+                                // Temporisation douce avant rafraîchissement pour visualiser la validation
+                                setTimeout(() => { window.location.reload(); }, 1000);
                             } else {
-                                alert(data.message || "Erreur lors du scan.");
+                                // Traitement des codes d'erreurs HTTP contrôlés (ex: 400 pour doublon)
+                                alert(data.message || "La validation de ce ticket a échoué.");
                             }
                         } catch (err) {
-                            console.error(err);
-                            alert("Erreur lors de la communication avec le serveur.");
+                            console.error("❌ Défaillance lors du traitement de l'envoi :", err);
+                            alert("Erreur de transfert des données ou session expirée.");
                         }
                     }
                 );
@@ -772,7 +888,7 @@
             }
         } else {
             if (html5QrCode) {
-                await html5QrCode.stop();
+                try { await html5QrCode.stop(); } catch(e) {}
             }
             readerDiv.style.display = 'none';
         }
@@ -820,7 +936,6 @@
 
         button.disabled = true;
 
-        // 🔥 CORRECTION ICI : Même traitement sur l'adresse absolue
         fetch(`/guest/set-served/${guestId}`, {
             method: 'POST',
             headers: {

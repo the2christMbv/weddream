@@ -29,6 +29,9 @@ class MagazineController extends Controller
      */
     public function show(Wedding $wedding)
     {
+        // 1. On calcule le total des invitations pour ce mariage spécifique
+        $totalInvitations = Invitation::where('wedding_id', $wedding->id)->count();
+
         // RÉSOLUTION DU BUG D'AFFICHAGE :
         // On récupère toutes les invitations qui appartiennent soit directement au mariage via 'wedding_id',
         // soit indirectement via la table de mariage 'wedding_table_id'.
@@ -38,7 +41,8 @@ class MagazineController extends Controller
             })
             ->get();
 
-        return view('admin.magazine', compact('wedding', 'invitations'));
+        // 2. On passe 'totalInvitations' à la vue admin.magazine
+        return view('admin.magazine', compact('wedding', 'invitations', 'totalInvitations'));
     }
 
     /**

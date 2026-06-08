@@ -20,13 +20,45 @@
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--wed-bg);
             color: var(--wed-dark);
+            overflow-x: hidden;
         }
 
         .sidebar { 
             background: var(--wed-sidebar);
             min-height: 100vh; 
             position: fixed; 
-            z-index: 100;
+            top: 0; bottom: 0; left: 0;
+            z-index: 1000;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.05);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            display: none !important;
+        }
+
+        .mobile-navbar {
+            background: var(--wed-sidebar);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .mobile-toggle-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1.5rem;
+            padding: 4px 10px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .mobile-toggle-btn:hover {
+            border-color: var(--wed-gold);
+            color: var(--wed-gold);
         }
 
         .nav-link {
@@ -35,6 +67,8 @@
             padding: 12px 15px;
             margin-bottom: 8px;
             transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
         }
 
         .nav-link:hover, .nav-link.active {
@@ -43,34 +77,36 @@
         }
 
         .main-content { 
-            margin-left: 16.666667%; 
             min-height: 100vh;
-            padding: 2rem;
+            padding: clamp(1.25rem, 3vw, 2.5rem);
+            width: 100%;
+            transition: all 0.3s ease;
         }
 
         .magazine-cover {
-            height: 350px;
-            border-radius: 30px;
+            height: clamp(250px, 40vh, 380px);
+            border-radius: 24px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             color: white;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            margin-bottom: 3rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            margin-bottom: 2.5rem;
+            padding: 20px;
         }
 
         .magazine-cover h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 3.5rem;
+            font-size: clamp(1.8rem, 4vw, 3.5rem);
             font-weight: 400;
             letter-spacing: 2px;
         }
 
         .script-text {
             font-family: 'Alex Brush', cursive;
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3.2rem);
             color: var(--wed-gold);
         }
 
@@ -83,13 +119,11 @@
             transition: transform 0.3s ease;
         }
 
-        .wish-card:hover {
-            transform: translateY(-5px);
-        }
+        .wish-card:hover { transform: translateY(-5px); }
 
         .wish-text {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 1.4rem;
+            font-size: clamp(1.2rem, 2vw, 1.4rem);
             line-height: 1.6;
             font-style: italic;
             color: #334155;
@@ -105,36 +139,43 @@
 
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(110px, 110px));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 10px;
             margin-top: 15px;
+        }
+
+        @media(min-width: 576px) {
+            .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(105px, 105px)); }
         }
 
         .gallery-container {
             position: relative;
-            width: 110px;
-            height: 110px;
+            aspect-ratio: 1 / 1;
+            width: 100%;
+        }
+
+        @media(min-width: 576px) {
+            .gallery-container { width: 105px; height: 105px; }
         }
 
         .gallery-item {
-            width: 110px;
-            height: 110px;
+            width: 100%; height: 100%;
             object-fit: cover;
             border-radius: 12px;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: transform 0.2s;
         }
+
+        .gallery-item:hover { transform: scale(1.03); }
 
         .btn-download-photo {
             position: absolute;
-            top: 5px;
-            right: 5px;
+            top: 5px; right: 5px;
             background: rgba(15, 23, 42, 0.85);
             color: #ffffff !important;
             border: none;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 28px; height: 28px;
             font-size: 0.85rem;
             display: flex;
             align-items: center;
@@ -151,8 +192,20 @@
             transform: scale(1.1);
         }
 
+        @media (min-width: 1200px) {
+            .sidebar { display: flex !important; width: 250px; }
+            .main-content { margin-left: 250px; width: calc(100% - 250px); }
+            .mobile-navbar { display: none !important; }
+        }
+
+        @media (min-width: 992px) and (max-width: 1199.98px) {
+            .sidebar { display: flex !important; width: 220px; }
+            .main-content { margin-left: 220px; width: calc(100% - 220px); }
+            .mobile-navbar { display: none !important; }
+        }
+
         @media print {
-            .sidebar, .no-print, .btn-print-zone, .btn-download-photo {
+            .sidebar, .no-print, .btn-print-zone, .btn-download-photo, .mobile-navbar {
                 display: none !important;
             }
             .main-content {
@@ -178,14 +231,54 @@
     </style>
 </head>
 <body>
+
+    <!-- Navbar Mobile -->
+    <div class="mobile-navbar no-print">
+        <div class="d-flex align-items-center">
+            <img src="{{ asset('logo-removebg-preview.png') }}" height="35" style="filter: brightness(0) invert(1);" alt="Logo">
+            <span class="ms-2 small text-uppercase fw-bold" style="color: var(--wed-gold); letter-spacing: 1px; font-size: 0.75rem;">Admin</span>
+        </div>
+        <button class="mobile-toggle-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+            <i class="bi bi-list"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Mobile (Offcanvas) -->
+    <div class="offcanvas offcanvas-start text-bg-dark no-print" tabindex="-1" id="mobileSidebar" style="background-color: var(--wed-sidebar) !important; width: 280px;">
+        <div class="offcanvas-header justify-content-end border-bottom border-secondary-subtle">
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-4 d-flex flex-column">
+            <div class="text-center mb-4">
+                <img src="{{ asset('logo-removebg-preview.png') }}" class="img-fluid px-4" style="filter: brightness(0) invert(1);" alt="Logo">
+                <div class="mt-2 small text-uppercase" style="color: var(--wed-gold); letter-spacing: 2px; font-size: 0.75rem;">Excellence Admin</div>
+            </div>
+            <nav class="nav flex-column">
+                <a class="nav-link" href="{{ route('admin.dashboard') }}">
+                    <i class="bi bi-grid-fill me-3"></i> Dashboard
+                </a>
+                <a class="nav-link" href="#">
+                    <i class="bi bi-heart-fill me-3"></i> Mariages
+                </a>
+                <a class="nav-link active" href="{{ route('admin.magazine.index') }}">
+                    <i class="bi bi-book-half me-3"></i> Magazine Souvenir
+                </a>
+                <a class="nav-link" href="{{ route('profile.edit') }}">
+                    <i class="bi bi-person-circle me-3"></i> Profil
+                </a>
+            </nav>
+        </div>
+    </div>
+
     <div class="container-fluid p-0">
         <div class="row g-0">
-            <div class="col-md-2 sidebar p-4 d-flex flex-column no-print">
+            
+            <!-- Sidebar Desktop -->
+            <div class="col-12 sidebar p-4 d-flex flex-column no-print">
                 <div class="text-center mb-5">
                     <img src="{{ asset('logo-removebg-preview.png') }}" class="img-fluid" style="filter: brightness(0) invert(1);" alt="Logo">
                     <div class="mt-3 small text-uppercase" style="color: var(--wed-gold); letter-spacing: 2px;">Excellence Admin</div>
                 </div>
-                
                 <nav class="nav flex-column">
                     <a class="nav-link" href="{{ route('admin.dashboard') }}">
                         <i class="bi bi-grid-fill me-3"></i> Dashboard
@@ -202,17 +295,44 @@
                 </nav>
             </div>
 
-            <div class="col-md-10 main-content">
+            <!-- Contenu Principal -->
+            <div class="main-content">
                 
-                <div class="d-flex justify-content-between align-items-center mb-4 no-print">
-                    <a href="{{ route('admin.magazine.index') }}" class="btn btn-sm btn-light rounded-3 px-3">
+                <!-- Barre d'actions -->
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-3 mb-4 no-print">
+                    <a href="{{ route('admin.magazine.index') }}" class="btn btn-sm btn-light rounded-3 px-3 py-2 text-center">
                         <i class="bi bi-arrow-left me-2"></i>Retour à la liste
                     </a>
-                    <button onclick="window.print()" class="btn btn-dark rounded-3 px-4 shadow-sm">
+                    <button onclick="window.print()" class="btn btn-dark rounded-3 px-4 py-2 shadow-sm">
                         <i class="bi bi-download me-2"></i> Télécharger le Magazine (PDF)
                     </button>
                 </div>
 
+                <!-- Section Statistiques Intégrée (no-print pour éviter d'imprimer ce bloc sur le PDF) -->
+                <div class="row g-4 mb-4 no-print">
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="card border-0 rounded-4 p-4 shadow-sm" style="background: white;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="text-uppercase fw-bold text-muted small mb-1" style="letter-spacing: 1px;">
+                                        Invitations Lancées
+                                    </h6>
+                                    <h2 class="fw-bold mb-0 text-dark">
+                                        {{ $totalInvitations }}
+                                    </h2>
+                                </div>
+                                <div class="rounded-circle p-3" style="background: rgba(197, 160, 89, 0.1); color: var(--wed-gold);">
+                                    <i class="bi bi-envelope-paper-heart-fill fs-3"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <span class="text-muted small">Total généré pour cet événement</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Couverture du Magazine -->
                 <div class="magazine-cover" style="background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7)), url('{{ $wedding->cover_photo ? asset('storage/' . $wedding->cover_photo) : 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070' }}') center/cover;">
                     <span class="script-text">Le Livre d'Or</span>
                     <h1>{{ $wedding->bride_name }} & {{ $wedding->groom_name }}</h1>
@@ -221,9 +341,10 @@
                     </p>
                 </div>
 
+                <!-- Grille des Vœux -->
                 <div class="row g-4">
                     @forelse($invitations as $invite)
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-12 col-md-6 col-lg-4">
                             <div class="card h-100 wish-card p-4 d-flex flex-column justify-content-between">
                                 <div>
                                     @if($invite->wedding_wish)
@@ -256,8 +377,8 @@
                                     @endif
 
                                     <div class="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
-                                        <span class="guest-author"><i class="bi bi-person me-1"></i> {{ $invite->guest_name }}</span>
-                                        <span class="badge {{ $invite->rsvp_status == 'confirme' ? 'bg-success-subtle text-success' : 'bg-light text-dark' }} font-monospace small px-2 py-1" style="font-size: 0.7rem;">
+                                        <span class="guest-author text-truncate me-2"><i class="bi bi-person me-1"></i> {{ $invite->guest_name }}</span>
+                                        <span class="badge {{ $invite->rsvp_status == 'confirme' ? 'bg-success-subtle text-success' : 'bg-light text-dark' }} font-monospace small px-2 py-1" style="font-size: 0.7rem; flex-shrink: 0;">
                                             {{ $invite->rsvp_status == 'confirme' ? 'Présent' : 'Absent' }}
                                         </span>
                                     </div>
@@ -277,15 +398,19 @@
         </div>
     </div>
 
+    <!-- Lightbox Modal -->
     <div class="modal fade no-print" id="lightboxModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
             <div class="modal-content bg-transparent border-0 text-center">
-                <img id="lightboxImg" src="" class="img-fluid rounded-4 shadow-lg mx-auto" style="max-height: 85vh;">
+                <div class="modal-header border-0 p-2 d-sm-none justify-content-end">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <img id="lightboxImg" src="" class="img-fluid rounded-4 shadow-lg mx-auto" style="max-height: 85vh; object-fit: contain;">
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function openLightbox(src) {
             document.getElementById('lightboxImg').src = src;

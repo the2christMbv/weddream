@@ -14,6 +14,7 @@ class Wedding extends Model
     'user_id',
     'contact_phone', 
     'guest_count_estimated',
+    'max_invitations',
     'date_customary',
     'time_customary',
     'date_civil',

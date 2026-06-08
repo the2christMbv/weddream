@@ -15,6 +15,8 @@
             background-size: 80px 140px;
             background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
             font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
         }
 
         .banner-program {
@@ -22,21 +24,22 @@
                         url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069');
             background-size: cover;
             background-position: center;
-            height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: clamp(50px, 8vw, 85px) 20px clamp(75px, 10vw, 110px) 20px;
             color: white;
             text-align: center;
-            margin-bottom: 30px;
             position: relative;
         }
 
         .banner-program h1 {
             font-family: 'Cinzel', serif;
             font-weight: 700;
-            letter-spacing: 5px;
+            letter-spacing: clamp(2px, 1vw, 5px);
             text-transform: uppercase;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+        }
+        
+        .banner-program p {
+            font-size: clamp(0.9rem, 1.8vw, 1.25rem);
         }
 
         .btn-banner-back {
@@ -52,32 +55,39 @@
             letter-spacing: 1.5px;
             text-decoration: none;
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             transition: all 0.3s ease;
         }
 
-        .btn-banner-back:hover {
-            background: #d4af37;
-            color: white;
-            border-color: #d4af37;
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        @media(min-width: 992px) {
+            .btn-banner-back:hover {
+                background: #d4af37;
+                color: white;
+                border-color: #d4af37;
+                box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+            }
         }
 
         .card-event {
             border: none;
-            border-radius: 15px;
-            transition: transform 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
 
-        .card-event:hover {
-            transform: translateY(-5px);
+        @media(min-width: 992px) {
+            .card-event:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            }
         }
 
         .card-header-custom {
-            padding: 1.5rem;
+            padding: 1.25rem 1.5rem;
             border-bottom: none;
             display: flex;
             align-items: center;
@@ -94,46 +104,78 @@
             justify-content: center;
             margin-right: 15px;
             font-size: 1.2rem;
+            flex-shrink: 0;
         }
 
         .btn-save {
             background: #1a1a1a;
             color: #d4af37;
             border: 2px solid #d4af37;
-            padding: 12px 40px;
+            padding: 14px clamp(25px, 5vw, 50px);
             font-family: 'Cinzel', serif;
             letter-spacing: 2px;
             transition: 0.3s;
-            border-radius: 0;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
         }
 
         .btn-save:hover {
             background: #d4af37;
             color: white;
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
         }
 
         .form-label {
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             color: #6c757d;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
 
-        .table-prestige thead {
-            background-color: #f8f9fa;
+        .table-prestige {
+            font-size: 0.95rem;
+        }
+
+        .table-prestige th {
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
         }
         
         .badge-venue {
             background: rgba(212, 175, 55, 0.1);
             color: #b38728;
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            white-space: normal;
+            text-align: left;
+        }
+
+        /* Ajustements de marges et d'alignement Mobile */
+        .custom-offset-top {
+            margin-top: -40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        @media (max-width: 767.98px) {
+            .btn-return-mobile {
+                position: static !important;
+                margin: 0 auto 15px auto !important;
+                display: inline-flex !important;
+                border-radius: 8px !important;
+            }
+            .custom-offset-top {
+                margin-top: -25px;
+            }
         }
     </style>
 </head>
 <body>
 
     <section class="banner-program">
-        <a href="{{ route('client.dashboard') }}" class="btn-banner-back rounded-1">
+        <a href="{{ route('client.dashboard') }}" class="btn-banner-back btn-return-mobile">
             <i class="bi bi-arrow-left me-2"></i> Dashboard
         </a>
 
@@ -143,7 +185,7 @@
         </div>
     </section>
 
-    <div class="container pb-5">
+    <div class="container custom-offset-top pb-5 px-3">
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 
@@ -161,7 +203,7 @@
                     
                     <div class="row g-4">
                         @foreach($configs as $type => $config)
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="card card-event h-100">
                                 <div class="card-header-custom" style="background-color: {{ $config['bg'] }}">
                                     <div class="icon-circle"><i class="bi bi-{{ $config['icon'] }}"></i></div>
@@ -170,27 +212,27 @@
                                 <div class="card-body p-4">
                                     <input type="hidden" name="programs[{{ $type }}][type]" value="{{ $type }}">
                                     
-                                    <div class="row">
-                                        <div class="col-6 mb-3">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-sm-6 mb-2">
                                             <label class="form-label">Date</label>
                                             <input type="date" name="programs[{{ $type }}][event_date]" 
-                                                   class="form-control" 
+                                                   class="form-control py-2 shadow-sm" style="border-radius: 10px;"
                                                    value="{{ $wedding->programs->where('type', $type)->first()->event_date ?? '' }}">
                                         </div>
-                                        <div class="col-6 mb-3">
+                                        <div class="col-12 col-sm-6 mb-2">
                                             <label class="form-label">Heure</label>
                                             <input type="time" name="programs[{{ $type }}][event_time]" 
-                                                   class="form-control" 
+                                                   class="form-control py-2 shadow-sm" style="border-radius: 10px;"
                                                    value="{{ $wedding->programs->where('type', $type)->first()->event_time ?? '' }}">
                                         </div>
                                     </div>
 
-                                    <div class="mb-0">
+                                    <div class="mt-2">
                                         <label class="form-label">Lieu de la cérémonie</label>
-                                        <div class="input-group">
+                                        <div class="input-group shadow-sm" style="border-radius: 10px; overflow: hidden;">
                                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-geo-alt text-muted"></i></span>
                                             <input type="text" name="programs[{{ $type }}][venue_name]" 
-                                                   class="form-control border-start-0" 
+                                                   class="form-control border-start-0 py-2" 
                                                    placeholder="Nom du lieu ou salle"
                                                    value="{{ $wedding->programs->where('type', $type)->first()->venue_name ?? '' }}">
                                         </div>
@@ -201,14 +243,14 @@
                         @endforeach
                     </div>
 
-                    <div class="text-center mt-5">
-                        <button type="submit" class="btn btn-save shadow-lg">
-                            ENREGISTRER LE PROGRAMME <i class="bi bi-check2-circle ms-2"></i>
+                    <div class="text-center mt-4 pt-2">
+                        <button type="submit" class="btn btn-save shadow-sm">
+                            ENREGISTRER LE PROGRAMME <i class="bi bi-check2-circle ms-1"></i>
                         </button>
                     </div>
                 </form>
 
-                <div class="card card-event mt-5 border-0 shadow-lg">
+                <div class="card card-event mt-5 border-0 shadow-sm">
                     <div class="card-header-custom" style="background-color: #1a1a1a; border-bottom: 2px solid #d4af37;">
                         <div class="icon-circle" style="color: #d4af37;"><i class="bi bi-calendar-check"></i></div>
                         <h5 class="mb-0 fw-bold" style="font-family: 'Cinzel', serif; color: #d4af37;">Récapitulatif Enregistré</h5>
@@ -233,7 +275,7 @@
                                                     {{ $configs[$program->type]['title'] ?? ucfirst($program->type) }}
                                                 </span>
                                             </td>
-                                            <td class="py-3 text-muted small">
+                                            <td class="py-3 text-muted small" style="white-space: nowrap;">
                                                 <i class="bi bi-calendar3 me-1"></i> 
                                                 {{ $program->event_date ? \Carbon\Carbon::parse($program->event_date)->format('d/m/Y') : 'Non définie' }} 
                                                 <span class="mx-1">|</span>
@@ -242,7 +284,7 @@
                                             </td>
                                             <td class="py-3">
                                                 @if(!empty($program->venue_name))
-                                                    <span class="badge badge-venue px-3 py-2 rounded-1 fw-normal">
+                                                    <span class="badge badge-venue px-3 py-2 rounded-2 fw-normal">
                                                         <i class="bi bi-geo-alt-fill me-1"></i> {{ $program->venue_name }}
                                                     </span>
                                                 @else
@@ -250,7 +292,7 @@
                                                 @endif
                                             </td>
                                             <td class="pe-4 py-3 text-end">
-                                                <span class="text-success small fw-bold">
+                                                <span class="text-success small fw-bold" style="white-space: nowrap;">
                                                     <i class="bi bi-patch-check-fill me-1"></i> VALIDÉ
                                                 </span>
                                             </td>
@@ -258,8 +300,8 @@
                                         @endif
                                     @empty
                                     <tr>
-                                        <td colspan="4" class="text-center py-5 text-muted">
-                                            <i class="bi bi-journal-x fs-2 d-block mb-2"></i>
+                                        <td colspan="4" class="text-center py-5 text-muted small">
+                                            <i class="bi bi-journal-x display-4 d-block mb-3 opacity-25"></i>
                                             Aucun programme n'a encore été enregistré.
                                         </td>
                                     </tr>

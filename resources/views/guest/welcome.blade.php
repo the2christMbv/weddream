@@ -26,19 +26,18 @@
         }
 
         body {
-            /* CONSERVATION DE L'ARRIÈRE-PLAN DEMANDÉ */
             background: linear-gradient(rgba(40, 41, 59, 0.7), rgba(30, 41, 59, 0.7)), 
                         url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
-            background-attachment: fixed; /* Pour un effet de scroll plus sympa */
+            background-attachment: fixed;
             font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 0;
         }
 
         .main-wrapper {
-            max-width: 600px; /* Légèrement élargi pour accueillir les cards */
+            max-width: 600px;
             margin: 0 auto;
             min-height: 100vh;
             color: var(--dark-royal);
@@ -50,12 +49,12 @@
         /* SECTION HERO AVEC LA PHOTO DU COUPLE */
         .hero-section {
             position: relative;
-            height: 75vh; /* Hauteur ajustée pour laisser voir les cards en bas */
+            height: 75vh;
             overflow: hidden;
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            border-radius: 50px 50px 50px 50px; /* Coins arrondis pour le style iParty */
+            border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
@@ -93,7 +92,7 @@
         /* STYLE DES CARDS (INVITATION ET PROGRAMME) */
         .info-card {
             background: white;
-            margin: -50px 20px 30px 20px; /* Chevauchement sur le hero */
+            margin: -50px 20px 30px 20px;
             padding: 40px 25px;
             border-radius: 30px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
@@ -196,7 +195,7 @@
             transition: 0.4s;
             margin-top: 30px;
             box-shadow: 0 10px 20px rgba(15,23,42,0.2);
-            box-sizing: border-box; /* Évite que le padding ne fasse déborder le bouton à 100% */
+            box-sizing: border-box;
         }
 
         .btn-rsvp:hover {
@@ -205,11 +204,45 @@
             transform: translateY(-3px);
         }
 
+        /* ACTIONS SCANNERS / SELF-SERVICE */
+        .btn-scan-borne {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #fff;
+            border: 2px solid var(--gold);
+            border-radius: 15px;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .btn-scan-borne:hover {
+            background: var(--gold);
+            color: #fff;
+        }
+
+        #reader {
+            width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            border: none !important;
+            background: #f8f9fa;
+        }
+
+        /* Animation pulsation pour le badge validé */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.08); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         /* ==========================================================================
-           COUCHE RESPONSIVE AJOUTÉE (SANS DOULONS NI MODIFICATIONS DE TES BASES)
+           COUCHE RESPONSIVE COMPLÈTE (ORDINATEUR, TABLETTE, SMARTPHONE)
            ========================================================================== */
 
-        /* 💻 ORDINATEURS & GRANDS ÉCRANS */
+        /* 💻 ORDINATEURS & GRANDS ÉCRANS (Plus de 1025px) */
         @media screen and (min-width: 1025px) {
             body {
                 padding-top: 30px;
@@ -222,20 +255,20 @@
                 backdrop-filter: blur(5px);
             }
             .hero-section {
-                border-radius: 40px 40px 0 0; /* Épouse le haut du wrapper sur PC */
+                border-radius: 40px 40px 0 0;
             }
         }
 
         /* 📋 TABLETTES (De 768px à 1024px) */
         @media screen and (max-width: 1024px) and (min-width: 768px) {
             .main-wrapper {
-                max-width: 80%; /* S'étend un peu plus pour un confort de lecture optimal */
+                max-width: 80%;
             }
             .hero-section {
-                height: 65vh; /* Hauteur ajustée pour un meilleur ratio sur tablette */
+                height: 65vh;
             }
             .info-card {
-                padding: 45px 35px; /* Plus d'espace intérieur */
+                padding: 45px 35px;
             }
         }
 
@@ -247,14 +280,14 @@
                 padding-bottom: 30px;
             }
             .hero-section {
-                height: 60vh; /* Réduit la hauteur pour afficher le début de la card directement */
-                border-radius: 0 0 40px 40px; /* Arrondi uniquement le bas pour le style mobile immersif */
+                height: 60vh;
+                border-radius: 0 0 40px 40px;
             }
             .hero-title h1 {
-                font-size: 2.4rem; /* Évite que les longs prénoms ne se coupent agressivement */
+                font-size: 2.4rem;
             }
             .info-card {
-                margin: -40px 15px 25px 15px; /* Marges réduites pour gagner de la place */
+                margin: -40px 15px 25px 15px;
                 padding: 30px 18px;
                 border-radius: 24px;
             }
@@ -274,7 +307,7 @@
             }
         }
 
-        /* 📳 PETITS ÉCRANS MOBILES (Moins de 380px - ex: iPhone SE) */
+        /* 📳 PETITS ÉCRANS MOBILES (Moins de 380px) */
         @media screen and (max-width: 375px) {
             .hero-title h1 {
                 font-size: 2rem;
@@ -337,12 +370,56 @@
             </p>
         </div>
 
+        <div class="info-card text-center" data-aos="fade-up" style="margin-top: 20px; padding: 2rem 1.5rem;">
+            
+            <div id="validated-badge" class="d-none">
+                <div style="background: rgba(25, 135, 84, 0.1); border: 2px solid #198754; border-radius: 20px; padding: 20px; position: relative; overflow: hidden;">
+                    <div class="position-absolute top-0 start-0 w-100 h-100" style="opacity: 0.03; background-image: url('data:image/svg+xml,%3Csvg width=20 height=20 xmlns=http://www.w3.org/2000/svg%3E%3Cpath d=\'M0 0h20v20H0z\' fill=\'none\'/%3E%3Ccircle cx=10 cy=10 r=2 fill=\'%23000\'/%3E%3C/svg%3E');"></div>
+                    
+                    <div style="font-size: 3rem; color: #198754; animation: pulse 2s infinite;" class="mb-2">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
+                    <span style="background: #198754; color: #fff; padding: 5px 15px; border-radius: 50px; font-size: 0.8rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+                        PRÉSENCE CONFIRMÉE
+                    </span>
+                    
+                    <h4 class="fw-bold mt-3 mb-1" style="color: #0f172a; font-size: 1.3rem;">{{ $invitation->guest_name }}</h4>
+                    <p id="badge-table-info" class="fw-semibold mb-2" style="color: var(--gold); font-size: 0.95rem;"></p>
+                    
+                    <div style="border-top: 1px dashed rgba(25, 135, 84, 0.3); margin: 15px 0; padding-top: 10px;">
+                        <span class="text-muted d-block" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Statut de sécurité</span>
+                        <strong style="color: #198754; font-size: 0.85rem;"><i class="bi bi-shield-check"></i> Invitation Certifiée & Accès Validé</strong>
+                    </div>
+                    
+                    <p class="mb-0 text-muted" style="font-size: 0.75rem; font-style: italic;">
+                        Présentez cet écran vert aux serveurs ou aux hôtes d'accueil de la table.
+                    </p>
+                </div>
+            </div>
+
+            <div id="scan-actions-box">
+                <span class="card-label">Arrivé sur place ?</span>
+                <h4 class="fw-bold mb-3" style="font-size: 1.2rem;">Enregistrement Autonome</h4>
+                <p class="text-muted small mb-4">Vous êtes devant la borne ou le panneau d'accueil ? Scannez le code de la salle pour valider votre entrée.</p>
+                
+                <button class="btn w-100 btn-scan-borne" id="start-scan-btn" onclick="startAutonomousScan()">
+                    <i class="bi bi-qr-code-scan me-2"></i> Scanner la Borne d'Accueil
+                </button>
+
+                <div id="scanner-container" class="mt-3 d-none">
+                    <div id="reader"></div>
+                    <button class="btn btn-sm btn-secondary mt-2" onclick="stopAutonomousScan()">Annuler</button>
+                </div>
+            </div>
+            
+            <div id="scan-error-message" class="mt-3 p-3 rounded-3 d-none bg-danger text-white"></div>
+        </div>
+
         <div class="info-card" data-aos="fade-up" data-aos-delay="200" style="margin-top: 20px; border-radius: 30px;">
             <span class="card-label">Le Déroulement</span>
             <h2 class="card-title">Ordre du Jour</h2>
 
             <div class="timeline">
-                {{-- On trie par date puis par heure pour un affichage chronologique parfait --}}
                 @forelse($wedding->programs->sortBy(['event_date', 'event_time']) as $program)
                 <div class="timeline-item">
                     <span class="event-time">
@@ -390,17 +467,115 @@
     </div>
 
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
     <script>
-        // Initialisation des animations au scroll
         AOS.init({ duration: 1000, once: true });
 
-        // Petit effet de parallaxe sur l'image du couple
+        // Parallaxe Hero
         window.addEventListener('scroll', function() {
             let offset = window.pageYOffset;
             if(offset < window.innerHeight * 0.8) {
                 document.getElementById('parallax').style.transform = "translateY(" + (offset * 0.3) + "px)";
             }
         });
+
+        // --- GESTION LOGIQUE DU SCANNER ET ATTESTATION EN LOCALSTORAGE ---
+        let html5QrcodeScanner = null;
+        const invitationId = "{{ $invitation->id }}";
+
+        // Vérification persistante de l'enregistrement dès l'ouverture du site
+        document.addEventListener("DOMContentLoaded", function() {
+            checkValidationStatus();
+        });
+
+        function checkValidationStatus() {
+            const isAlreadyValidated = localStorage.getItem('wedding_checked_in_' + invitationId);
+            const savedTable = localStorage.getItem('wedding_table_' + invitationId);
+
+            if (isAlreadyValidated === 'true') {
+                displaySuccessBadge(savedTable);
+            }
+        }
+
+        function displaySuccessBadge(tableName) {
+            // Verrouille l'écran de l'invité sur le badge vert sécurisé
+            document.getElementById('scan-actions-box').classList.add('d-none');
+            document.getElementById('scan-error-message').classList.add('d-none');
+            
+            const badgeTableInfo = document.getElementById('badge-table-info');
+            if (tableName && tableName !== 'null' && tableName !== 'undefined') {
+                badgeTableInfo.innerHTML = `<i class="bi bi-grid-3x3-gap-fill me-1"></i> Table assignée : ${tableName}`;
+            } else {
+                const phpTable = "{{ $invitation->weddingTable->name ?? '' }}";
+                badgeTableInfo.innerHTML = phpTable ? `<i class="bi bi-grid-3x3-gap-fill me-1"></i> Table assignée : ${phpTable}` : `<i class="bi bi-geo-alt-fill me-1"></i> Placement : Salle principale`;
+            }
+            
+            document.getElementById('validated-badge').classList.remove('d-none');
+        }
+
+        function startAutonomousScan() {
+            document.getElementById('scanner-container').classList.remove('d-none');
+            document.getElementById('start-scan-btn').classList.add('d-none');
+            document.getElementById('scan-error-message').classList.add('d-none');
+            
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            
+            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                stopAutonomousScan();
+                
+                // Routage AJAX vers ton traitement de validation superviseur
+                fetch(`/supervisor/check-in/${invitationId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        // Enregistrement persistant dans le smartphone
+                        localStorage.setItem('wedding_checked_in_' + invitationId, 'true');
+                        localStorage.setItem('wedding_table_' + invitationId, data.table_name || '');
+                        
+                        // Transformation instantanée en Attestation verte
+                        displaySuccessBadge(data.table_name);
+                    } else {
+                        showScanError(data.message || "Échec de l'authentification automatique.");
+                    }
+                })
+                .catch(error => {
+                    showScanError("Erreur de connexion avec le serveur. Veuillez réessayer ou contacter le staff.");
+                });
+            };
+
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            
+            html5QrcodeScanner.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+            .catch(err => {
+                alert("Accès caméra refusé ou non supporté. Veuillez présenter votre Pass VIP physique à l'accueil.");
+                stopAutonomousScan();
+            });
+        }
+
+        function stopAutonomousScan() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    document.getElementById('scanner-container').classList.add('d-none');
+                    document.getElementById('start-scan-btn').classList.remove('d-none');
+                }).catch(err => {
+                    document.getElementById('scanner-container').classList.add('d-none');
+                    document.getElementById('start-scan-btn').classList.remove('d-none');
+                });
+            }
+        }
+
+        function showScanError(message) {
+            let errorBox = document.getElementById('scan-error-message');
+            errorBox.classList.remove('d-none');
+            errorBox.innerHTML = `<h5><i class="bi bi-exclamation-triangle-fill"></i> Oups !</h5>${message}`;
+        }
     </script>
 </body>
 </html>

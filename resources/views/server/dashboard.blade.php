@@ -207,132 +207,160 @@
             <h5 class="fw-bold mb-3 text-uppercase tracking-wider"><i class="bi bi-people-fill text-warning me-2"></i>Registre de Service des Invités</h5>
             <div class="table-responsive border rounded-4 bg-white shadow-sm">
                 <table class="table align-middle mb-0" id="guestsTable">
-        <thead class="table-light">
-            <tr>
-                <th class="ps-4">Invité & Token</th>
-                <th>Catégorie</th>
-                <th>Places</th>
-                <th>Boisson(s) Choisie(s)</th>
-                <th>Placement Salle</th>
-                <th class="text-center">Pointage</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($guests as $guest)
-            <tr class="guest-row" id="guest-row-{{ $guest->id }}">
-                <td class="ps-4">
-                    <div class="fw-bold guest-name">{{ $guest->guest_name }}</div>
-                    <div class="text-muted small">ID Token: {{ $guest->link_token }}</div>
-                </td>
-                
-                <td>
-                    <span class="badge bg-light text-dark border rounded-pill px-3">
-                        {{ ucfirst($guest->type) }}
-                    </span>
-                </td>
-                
-                <td class="text-muted small fw-bold">
-                    {{ $guest->access_count }} pers.
-                </td>
-                
-                <td>
-                    <div class="d-flex flex-column gap-2">
-                        @if(!empty($guest->preorder_drink))
-                            <div class="d-flex flex-column gap-1">
-                                @if(is_array($guest->preorder_drink))
-                                    @foreach($guest->preorder_drink as $index => $drinkName)
-                                        <span class="text-dark fw-medium d-inline-flex align-items-center" style="font-size: 0.85rem;">
-                                            <i class="bi bi-check2-circle text-success me-1"></i>
-                                            <small class="text-muted fw-light me-1">P{{ $index + 1 }}:</small> 
-                                            <span class="badge bg-light text-dark border-start border-warning border-3 rounded-1 px-2 py-0.5">
-                                                {{ trim($drinkName) ?: 'Aucun choix' }}
-                                            </span>
-                                        </span>
-                                    @endforeach
-                                @else
-                                    @foreach(array_filter(explode(',', $guest->preorder_drink)) as $index => $drinkName)
-                                        <span class="text-dark fw-medium d-inline-flex align-items-center" style="font-size: 0.85rem;">
-                                            <i class="bi bi-check2-circle text-success me-1"></i>
-                                            <small class="text-muted fw-light me-1">P{{ $index + 1 }}:</small> 
-                                            <span class="badge bg-light text-dark border-start border-warning border-3 rounded-1 px-2 py-0.5">
-                                                {{ trim($drinkName) }}
-                                            </span>
-                                        </span>
-                                    @endforeach
-                                @endif
-                            </div>
-                        @else
-                            <span class="text-muted small fw-light">Aucun choix</span>
-                        @endif
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Invité & Token</th>
+                            <th>Catégorie</th>
+                            <th>Places</th>
+                            <th>Boisson(s) Choisie(s)</th>
+                            <th>Placement Salle</th>
+                            <th class="text-center">Pointage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($guests as $guest)
+                        <tr class="guest-row" id="guest-row-{{ $guest->id }}">
+                            <td class="ps-4">
+                                <div class="fw-bold guest-name">{{ $guest->guest_name }}</div>
+                                <div class="text-muted small">ID Token: {{ $guest->link_token }}</div>
+                            </td>
+                            
+                            <td>
+                                <span class="badge bg-light text-dark border rounded-pill px-3">
+                                    {{ ucfirst($guest->type) }}
+                                </span>
+                            </td>
+                            
+                            <td class="text-muted small fw-bold">
+                                {{ $guest->access_count }} pers.
+                            </td>
+                            
+                            <td>
+                                <div class="d-flex flex-column gap-2">
+                                    @if(!empty($guest->preorder_drink) && (is_array($guest->preorder_drink) ? count($guest->preorder_drink) > 0 : strlen(trim($guest->preorder_drink)) > 0))
+                                        <div class="d-flex flex-column gap-1">
+                                            @if(is_array($guest->preorder_drink))
+                                                @foreach($guest->preorder_drink as $index => $drinkName)
+                                                    <span class="text-dark fw-medium d-inline-flex align-items-center" style="font-size: 0.85rem;">
+                                                        <i class="bi bi-check2-circle text-success me-1"></i>
+                                                        <small class="text-muted fw-light me-1">P{{ $index + 1 }}:</small> 
+                                                        <span class="badge bg-light text-dark border-start border-warning border-3 rounded-1 px-2 py-0.5">
+                                                            {{ trim($drinkName) ?: 'Aucun choix' }}
+                                                        </span>
+                                                    </span>
+                                                @endforeach
+                                            @else
+                                                @foreach(array_filter(explode(',', $guest->preorder_drink)) as $index => $drinkName)
+                                                    <span class="text-dark fw-medium d-inline-flex align-items-center" style="font-size: 0.85rem;">
+                                                        <i class="bi bi-check2-circle text-success me-1"></i>
+                                                        <small class="text-muted fw-light me-1">P{{ $index + 1 }}:</small> 
+                                                        <span class="badge bg-light text-dark border-start border-warning border-3 rounded-1 px-2 py-0.5">
+                                                            {{ trim($drinkName) }}
+                                                        </span>
+                                                    </span>
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="bg-light p-3 rounded-3 no-print" style="max-width: 280px;">
+                                            <small class="text-muted d-block mb-2 fw-bold text-uppercase" style="font-size: 0.7rem;">
+                                                <i class="bi bi-info-circle me-1"></i> Choix pour les {{ $guest->access_count }} personnes :
+                                            </small>
+                                            
+                                            <form action="{{ route('serveur.serve-drink', $guest->id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                <div class="d-flex flex-column gap-2">
+                                                    @for($i = 1; $i <= $guest->access_count; $i++)
+                                                        <div class="d-flex align-items-center gap-1 mb-1">
+                                                            <span class="badge bg-secondary rounded-1 small" style="font-size: 0.75rem; min-width: 24px;">P{{ $i }}</span>
+                                                            <select name="drink_names[]" class="form-select form-select-sm py-1 shadow-sm" style="font-size: 0.8rem;" required>
+                                                                <option value="" selected disabled>Choisir boisson...</option>
+                                                                @php
+                                                                    $drinksList = $wedding->drinks ?? (isset($wedding->id) ? DB::table('wedding_drinks')->where('wedding_id', $wedding->id)->get() : collect());
+                                                                @endphp
+                                                                @foreach($drinksList as $drink)
+                                                                    <option value="{{ $drink->name }}">{{ $drink->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    @endfor
+                                                </div>
+                                                
+                                                <button type="submit" class="btn btn-gold-luxe btn-sm w-100 py-2 mt-2 rounded-2 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                                                    <i class="bi bi-plus-lg me-1"></i> Valider les sélections
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
 
-                        @if($guest->is_checked_in)
-                            <div class="mt-1">
-                                <button type="button" 
-                                        onclick="markAsServed({{ $guest->id }}, this)" 
-                                        class="btn btn-xs {{ ($guest->is_served ?? false) ? 'btn-success' : 'btn-outline-warning' }} rounded-pill px-2 py-0.5" 
-                                        style="font-size: 0.72rem; --bs-btn-padding-y: .15rem; --bs-btn-padding-x: .4rem;"
-                                        {{ ($guest->is_served ?? false) ? 'disabled' : '' }}>
-                                    <i class="bi {{ ($guest->is_served ?? false) ? 'bi-cup-straw' : 'bi-hand-index-thumb' }} me-1"></i>
-                                    {{ ($guest->is_served ?? false) ? 'Servi ✓' : 'Marquer Servi' }}
-                                </button>
-                            </div>
-                        @endif
-                    </div>
-                </td>
-                
-                <td>
-                    <div class="d-flex flex-column gap-2">
-                        <div class="input-group input-group-sm w-auto no-print">
-                            <select class="form-select rounded-3" id="table_{{ $guest->id }}" onchange="saveAssignment({{ $guest->id }}, this)">
-                                <option value="">Choisir Table...</option>
-                                @foreach($tables as $table)
-                                    <option value="{{ $table->id }}" {{ $guest->wedding_table_id == $table->id ? 'selected' : '' }}>{{ $table->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        
-                        @if($guest->wedding_table_id)
-                            <div class="text-primary fw-bold small" style="font-size: 0.75rem;">
-                                Assigné : {{ $guest->weddingTable->name ?? 'Table #'.$guest->wedding_table_id }}
-                            </div>
-
-                            @if($guest->is_checked_in)
-                                <div class="mt-1">
-                                    <button type="button" 
-                                            onclick="markAsSeated({{ $guest->id }}, this)" 
-                                            class="btn btn-xs {{ ($guest->is_seated ?? false) ? 'btn-dark' : 'btn-outline-primary' }} rounded-3 px-2 py-0.5" 
-                                            style="font-size: 0.72rem; --bs-btn-padding-y: .15rem; --bs-btn-padding-x: .4rem;"
-                                            {{ ($guest->is_seated ?? false) ? 'disabled' : '' }}>
-                                        <i class="bi {{ ($guest->is_seated ?? false) ? 'bi-check-all' : 'bi-chair' }} me-1"></i>
-                                        {{ ($guest->is_seated ?? false) ? 'Installé ✓' : 'Confirmer Assis' }}
-                                    </button>
+                                    @if($guest->is_checked_in)
+                                        <div class="mt-1">
+                                            <button type="button" 
+                                                    onclick="markAsServed({{ $guest->id }}, this)" 
+                                                    class="btn btn-xs {{ ($guest->is_served ?? false) ? 'btn-success' : 'btn-outline-warning' }} rounded-pill px-2 py-0.5" 
+                                                    style="font-size: 0.72rem; --bs-btn-padding-y: .15rem; --bs-btn-padding-x: .4rem;"
+                                                    {{ ($guest->is_served ?? false) ? 'disabled' : '' }}>
+                                                <i class="bi {{ ($guest->is_served ?? false) ? 'bi-cup-straw' : 'bi-hand-index-thumb' }} me-1"></i>
+                                                {{ ($guest->is_served ?? false) ? 'Servi ✓' : 'Marquer Servi' }}
+                                            </button>
+                                        </div>
+                                    @endif
                                 </div>
-                            @endif
-                        @endif
-                    </div>
-                </td>
-                
-                <td class="text-center">
-                    @if($guest->is_checked_in)
-                        <div class="text-success d-flex flex-column align-items-center">
-                            <i class="bi bi-patch-check-fill h4 mb-0"></i>
-                            <small class="text-muted small" style="font-size: 0.7rem;">Présent</small>
-                        </div>
-                    @else
-                        <form action="{{ route('supervisor.checkin', $guest->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-outline-dark rounded-pill no-print px-3">Valider</button>
-                        </form>
-                    @endif
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="6" class="text-center py-5 text-muted">Aucun invité trouvé dans la table d'invitations.</td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
+                            </td>
+                            
+                            <td>
+                                <div class="d-flex flex-column gap-2">
+                                    <div class="input-group input-group-sm w-auto no-print">
+                                        <select class="form-select rounded-3" id="table_{{ $guest->id }}" onchange="saveAssignment({{ $guest->id }}, this)" @if(optional(auth()->user())->role === 'server') disabled style="background-color: #e9ecef; opacity: 0.8;" @endif>
+                                            <option value="">Choisir Table...</option>
+                                            @foreach($tables as $table)
+                                                <option value="{{ $table->id }}" {{ $guest->wedding_table_id == $table->id ? 'selected' : '' }}>{{ $table->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
+                                    @if($guest->wedding_table_id)
+                                        <div class="text-primary fw-bold small" style="font-size: 0.75rem;">
+                                            Assigné : {{ $guest->weddingTable->name ?? 'Table #'.$guest->wedding_table_id }}
+                                        </div>
+
+                                        @if($guest->is_checked_in)
+                                            <div class="mt-1">
+                                                <button type="button" 
+                                                        onclick="markAsSeated({{ $guest->id }}, this)" 
+                                                        class="btn btn-xs {{ ($guest->is_seated ?? false) ? 'btn-dark' : 'btn-outline-primary' }} rounded-3 px-2 py-0.5" 
+                                                        style="font-size: 0.72rem; --bs-btn-padding-y: .15rem; --bs-btn-padding-x: .4rem;"
+                                                        {{ ($guest->is_seated ?? false) ? 'disabled' : '' }}>
+                                                    <i class="bi {{ ($guest->is_seated ?? false) ? 'bi-check-all' : 'bi-chair' }} me-1"></i>
+                                                    {{ ($guest->is_seated ?? false) ? 'Installé ✓' : 'Confirmer Assis' }}
+                                                </button>
+                                            </div>
+                                        @endif
+                                    @endif
+                                </div>
+                            </td>
+                            
+                            <td class="text-center">
+                                @if($guest->is_checked_in)
+                                    <div class="text-success d-flex flex-column align-items-center">
+                                        <i class="bi bi-patch-check-fill h4 mb-0"></i>
+                                        <small class="text-muted small">Présent</small>
+                                    </div>
+                                @else
+                                    <form action="{{ route('supervisor.checkin', $guest->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-dark rounded-pill no-print px-3">Valider</button>
+                                    </form>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">Aucun invité trouvé dans la table d'invitations.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
@@ -340,7 +368,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
-    // Recherche synchrone dans la table
     document.getElementById('searchInput').addEventListener('keyup', function() {
         let filter = this.value.toLowerCase();
         document.querySelectorAll('.guest-row').forEach(row => {
@@ -348,14 +375,12 @@
         });
     });
 
-    // Effet parallaxe sur le hero header
     window.addEventListener('scroll', function() {
         let offset = window.pageYOffset;
         let parallax = document.getElementById('parallax');
         if(parallax) parallax.style.transform = "translateY(" + (offset * 0.4) + "px)";
     });
 
-    // Gestion du scanner QR Code (uniquement pointage)
     let html5QrcodeScanner = null;
 
     function toggleScanner() {
@@ -389,24 +414,58 @@
 
     function onScanSuccess(decodedText, decodedResult) {
         stopScanner();
-        
         let token = decodedText;
         if (decodedText.includes('/')) {
             token = decodedText.split('/').pop();
         }
-        
         window.location.href = `/supervisor/check-in-qr/${token}`;
     }
 
-    function onScanError(err) {
-        // Log silencieux
+    function onScanError(err) {}
+
+    // Correction de l'URL cible d'assignation dynamique
+    function saveAssignment(guestId, selectElement) {
+        const tableId = selectElement.value;
+        selectElement.classList.add('border-warning');
+        selectElement.disabled = true;
+
+        fetch('/supervisor/assign-table', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                guest_id: guestId,
+                table_id: tableId
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if(data.success) {
+                location.reload();
+            } else {
+                alert("Erreur : " + data.message);
+                selectElement.classList.remove('border-warning');
+                selectElement.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur d\'assignation:', error);
+            alert("Une erreur technique est survenue.");
+            selectElement.classList.remove('border-warning');
+            selectElement.disabled = false;
+        });
     }
 
-    // Fonction universelle pour confirmer que l'invité est assis
     function markAsSeated(guestId, button) {
         if(!confirm("Confirmer que cet invité est bien installé à sa table ?")) return;
-
-        // On bloque immédiatement le bouton pour éviter les actions multiples pendant l'attente
         button.disabled = true;
 
         fetch(`/guest/set-seated/${guestId}`, {
@@ -418,14 +477,13 @@
             }
         })
         .then(response => {
-            if (!response.ok) throw new Error("Erreur de communication serveur");
+            if (!response.ok) throw new Error("Erreur serveur");
             return response.json();
         })
         .then(data => {
             if(data.success) {
                 button.className = "btn btn-xs btn-dark rounded-3 py-1 small";
-                button.innerHTML = "<i class='bi bi-check-all me-1'></i> Installé à sa table ✓";
-                
+                button.innerHTML = "<i class='bi bi-check-all me-1'></i> Installé ✓";
                 setTimeout(() => { location.reload(); }, 600);
             } else {
                 alert("Erreur : " + data.message);
@@ -433,19 +491,15 @@
             }
         })
         .catch(error => {
-            console.error('Erreur technique:', error);
             alert("Une erreur technique est survenue.");
             button.disabled = false;
         });
     }
 
-    // Fonction universelle pour confirmer que le service de boisson est fait
     function markAsServed(guestId, button) {
         if(!confirm("Valider que la commande de boisson a bien été servie ?")) return;
-
         button.disabled = true;
 
-        // 🔥 CORRECTION ICI : L'URL cible désormais la racine unique /guest/set-served
         fetch(`/guest/set-served/${guestId}`, {
             method: 'POST',
             headers: {
@@ -455,14 +509,13 @@
             }
         })
         .then(response => {
-            if (!response.ok) throw new Error("Erreur de communication serveur");
+            if (!response.ok) throw new Error("Erreur serveur");
             return response.json();
         })
         .then(data => {
             if(data.success) {
                 button.className = "btn btn-xs btn-success rounded-pill px-2 py-1 small";
-                button.innerHTML = "<i class='bi bi-cup-straw me-1'></i> Boisson Servie ✓";
-                
+                button.innerHTML = "<i class='bi bi-cup-straw me-1'></i> Servie ✓";
                 setTimeout(() => { location.reload(); }, 600);
             } else {
                 alert("Erreur : " + data.message);
@@ -470,7 +523,6 @@
             }
         })
         .catch(error => {
-            console.error('Erreur technique:', error);
             alert("Une erreur technique est survenue.");
             button.disabled = false;
         });

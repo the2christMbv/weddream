@@ -78,11 +78,14 @@ class InvitationController extends Controller
         $wedding = Wedding::where('user_id', Auth::id())->firstOrFail();
         $invitations = Invitation::where('wedding_id', $wedding->id)->get();
         
-        return view('invitation.index', compact('wedding', 'invitations'));
+        // Sécurité : On calcule le total pour la vue générale des invitations
+        $totalInvitations = $invitations->count();
+        
+        return view('invitation.index', compact('wedding', 'invitations', 'totalInvitations'));
     }
 
     /**
-     * Crée et génère une nouvelle invitation avec un jeton unique.
+     * Crée et génère une nouvelle invitation avec un jeton unique (AVEC BLOCAGE).
      */
     public function store(Request $request)
     {
@@ -95,6 +98,19 @@ class InvitationController extends Controller
             'phone'        => 'nullable|string',
         ]);
 
+        // 💡 BLOCAGE ICI : On vérifie si une limite a été imposée par le SuperAdmin
+        if (isset($wedding->max_invitations) && $wedding->max_invitations > 0) {
+            
+            // On compte le nombre exact de cartes d'invitations déjà créées par le marié
+            $currentInvitationsCount = Invitation::where('wedding_id', $wedding->id)->count();
+
+            // Si le quota maximal est atteint ou dépassé, on bloque immédiatement
+            if ($currentInvitationsCount >= $wedding->max_invitations) {
+                return redirect()->back()->with('error', "Limite atteinte ! Votre abonnement actuel vous restreint à un maximum de {$wedding->max_invitations} invitations générées. Veuillez contacter l'administration pour augmenter votre quota.");
+            }
+        }
+
+        // Si la validation passe et que le quota n'est pas dépassé, on procède à la création
         Invitation::create([
             'wedding_id'   => $wedding->id,
             'guest_name'   => $request->guest_name,
@@ -263,15 +279,42 @@ class InvitationController extends Controller
      */
     public function print($id)
     {
-        // 1. Récupère l'invitation
         $invitation = Invitation::findOrFail($id);
         
-        // 2. Récupère le mariage ET charge explicitement sa relation 'programs'
         $wedding = Wedding::with(['programs' => function($query) {
             $query->orderBy('event_date', 'asc')->orderBy('event_time', 'asc');
         }])->findOrFail($invitation->wedding_id);
 
-        // 3. Envoie le tout à la vue 'invitation.print'
         return view('invitation.print', compact('invitation', 'wedding'));
     }
+    public function serveDrinkOnSite(Request $request, $invitationId)
+{
+    // 1. On récupère l'invitation de l'invité présent
+    $invitation = Invitation::findOrFail($invitationId);
+
+    // 2. Validation : On s'assure qu'une boisson valide a été sélectionnée
+    $request->validate([
+        'drink_name' => 'required|string|max:255',
+    ]);
+
+    // 3. On récupère les boissons existantes ou déjà enregistrées pour éviter les tableaux corrompus
+    $currentDrinks = is_array($invitation->preorder_drink) ? $invitation->preorder_drink : [];
+
+    // 4. On ajoute la boisson choisie sur place à la liste de l'invité
+    $currentDrinks[] = $request->drink_name;
+
+    // 5. On sauvegarde l'état de l'invitation
+    $invitation->preorder_drink = $currentDrinks;
+    
+    // Optionnel : On peut forcer le statut RSVP à 'confirme' puisqu'il est physiquement là
+    if ($invitation->rsvp_status !== 'confirme') {
+        $invitation->rsvp_status = 'confirme';
+    }
+
+    if ($invitation->save()) {
+        return redirect()->back()->with('success', "Boisson ({$request->drink_name}) attribuée avec succès à l'invité !");
+    }
+
+    return redirect()->back()->with('error', "Impossible d'attribuer la boisson.");
+}
 }
