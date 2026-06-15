@@ -126,7 +126,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/staff/reset/{id}', [SupervisorController::class, 'resetPassword'])->name('client.staff.reset');
         Route::delete('/staff/{id}', [SupervisorController::class, 'destroy'])->name('client.staff.destroy');
         // Impression pour table
-        Route::get('/staff/table/{id}/print', [SupervisorController::class, 'printTableTicket'])->name('client.staff.table.print');
+        Route::get('/staff/table/{id}/print', [SupervisorController::class, 'printTableTicket'])->name('client.staff.table.print1');
         // Invitations (Gestion & CRUD)
         Route::get('/invitations/gestion', [InvitationController::class, 'index'])->name('invitations.index');
         Route::post('/invitations/store', [InvitationController::class, 'store'])->name('invitations.store');

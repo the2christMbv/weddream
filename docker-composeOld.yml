@@ -1,0 +1,19 @@
+services:
+  laravel.app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_frankenphp
+    ports:
+      - "8080:80"     # HTTP
+      - "443:443"     # HTTPS (Caddy gère le TLS automatiquement si SERVER_NAME est un domaine)
+      - "443:443/udp" # HTTP/3
+    environment:
+      - SERVER_NAME=${SERVER_NAME:-localhost}
+      - APP_KEY=${APP_KEY}
+      - DB_CONNECTION=mysql
+      - DB_HOST=laravel.db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-laravel}
+      - DB_USERNAME=${DB_USERNAME:-laravel_user}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
